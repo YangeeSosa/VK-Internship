@@ -47,25 +47,20 @@ func (sp *subPub) Subscribe(subject string, cb MessageHandler) (Subscription, er
 	sp.mu.Lock()
 	defer sp.mu.Unlock()
 
-	// Создание буферизированного канала для сообщений
 	msgChan := make(chan interface{}, 100)
 
-	// Добавление канала в список подписчиков
 	sp.subscribers[subject] = append(sp.subscribers[subject], msgChan)
 
-	// Запуск горутины для обработки сообщений
 	go func() {
 		for msg := range msgChan {
 			cb(msg)
 		}
 	}()
 
-	// Создание функции отписки
 	cancel := func() {
 		sp.mu.Lock()
 		defer sp.mu.Unlock()
 
-		// Находим и удаляем канал из списка
 		channels := sp.subscribers[subject]
 		for i, ch := range channels {
 			if ch == msgChan {
@@ -75,7 +70,6 @@ func (sp *subPub) Subscribe(subject string, cb MessageHandler) (Subscription, er
 			}
 		}
 
-		// Если подписчиков больше нет, то удаляем subject
 		if len(sp.subscribers[subject]) == 0 {
 			delete(sp.subscribers, subject)
 		}
@@ -93,7 +87,6 @@ func (sp *subPub) Publish(subject string, msg interface{}) error {
 	channels := sp.subscribers[subject]
 	sp.mu.RUnlock()
 
-	// Отправляем сообщение всем подписчикам
 	for _, ch := range channels {
 		if len(ch) < cap(ch) {
 			ch <- msg
@@ -113,7 +106,6 @@ func (sp *subPub) Close(ctx context.Context) error {
 	default:
 		if !sp.closed {
 			sp.closed = true
-			// Закрываем все каналы
 			for _, channels := range sp.subscribers {
 				for _, ch := range channels {
 					close(ch)

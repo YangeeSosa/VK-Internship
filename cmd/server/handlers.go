@@ -21,10 +21,8 @@ func (s *server) Subscribe(req *api.SubscribeRequest, stream api.PubSub_Subscrib
 		return status.Error(codes.InvalidArgument, "ключ не может быть пустым")
 	}
 
-	// Создание канала для получения сообщений
 	msgChan := make(chan interface{}, 100)
 
-	// Подписка на систему pubsub
 	sub, err := s.pubsub.Subscribe(req.Key, func(msg interface{}) {
 		msgChan <- msg
 	})
@@ -33,7 +31,6 @@ func (s *server) Subscribe(req *api.SubscribeRequest, stream api.PubSub_Subscrib
 	}
 	defer sub.Unsubscribe()
 
-	// Обработка входящих сообщений
 	for {
 		select {
 		case msg := <-msgChan:

@@ -22,11 +22,9 @@ type GRPCServer struct {
 }
 
 func NewGRPCServer(cfg *config.Config, ps subpub.SubPub) (*GRPCServer, error) {
-	// Создаем gRPC сервер
 	grpcServer := grpc.NewServer()
 	api.RegisterPubSubServer(grpcServer, &server{pubsub: ps})
 
-	// Начинаем слушать
 	lis, err := net.Listen("tcp", cfg.GRPCPort)
 	if err != nil {
 		return nil, err
@@ -40,7 +38,6 @@ func NewGRPCServer(cfg *config.Config, ps subpub.SubPub) (*GRPCServer, error) {
 }
 
 func (s *GRPCServer) Start() error {
-	// Обрабатываем graceful shutdown
 	go func() {
 		sigChan := make(chan os.Signal, 1)
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)

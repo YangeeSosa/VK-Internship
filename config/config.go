@@ -22,7 +22,6 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	// Значения по умолчанию
 	if config.GRPCPort == "" {
 		config.GRPCPort = ":50051"
 	}
