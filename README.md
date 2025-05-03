@@ -61,16 +61,14 @@ protoc --go_out=. --go_opt=paths=source_relative \
 ```
 
 3. Конфигурация:
-Настройка конфигурации в `config.json`:
-```json
-{
-    "grpc_port": ":50051"
-}
+Настройка конфигурации в `config.yaml`:
+```yaml
+grpc_port: ":50051"
 ```
 
 4. Запуск сервера:
 ```bash
-go run cmd/server/main.go
+go run ./cmd/server
 ```
 
 ## Обработка ошибок
