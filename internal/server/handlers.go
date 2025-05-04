@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -11,12 +11,12 @@ import (
 	"testEx2/pkg/subpub"
 )
 
-type server struct {
+type Server struct {
 	api.UnimplementedPubSubServer
 	pubsub subpub.SubPub
 }
 
-func (s *server) Subscribe(req *api.SubscribeRequest, stream api.PubSub_SubscribeServer) error {
+func (s *Server) Subscribe(req *api.SubscribeRequest, stream api.PubSub_SubscribeServer) error {
 	if req.Key == "" {
 		return status.Error(codes.InvalidArgument, "ключ не может быть пустым")
 	}
@@ -45,7 +45,7 @@ func (s *server) Subscribe(req *api.SubscribeRequest, stream api.PubSub_Subscrib
 	}
 }
 
-func (s *server) Publish(ctx context.Context, req *api.PublishRequest) (*emptypb.Empty, error) {
+func (s *Server) Publish(ctx context.Context, req *api.PublishRequest) (*emptypb.Empty, error) {
 	if req.Key == "" {
 		return nil, status.Error(codes.InvalidArgument, "ключ не может быть пустым")
 	}

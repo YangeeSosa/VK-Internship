@@ -1,4 +1,4 @@
-package main
+package server
 
 import (
 	"context"
@@ -16,14 +16,14 @@ import (
 )
 
 type GRPCServer struct {
-	server *grpc.Server
-	pubsub subpub.SubPub
-	lis    net.Listener
+	Server *grpc.Server
+	SubPub subpub.SubPub
+	Lis    net.Listener
 }
 
 func NewGRPCServer(cfg *config.Config, ps subpub.SubPub) (*GRPCServer, error) {
 	grpcServer := grpc.NewServer()
-	api.RegisterPubSubServer(grpcServer, &server{pubsub: ps})
+	api.RegisterPubSubServer(grpcServer, &Server{pubsub: ps})
 
 	lis, err := net.Listen("tcp", cfg.GRPCPort)
 	if err != nil {
@@ -31,9 +31,9 @@ func NewGRPCServer(cfg *config.Config, ps subpub.SubPub) (*GRPCServer, error) {
 	}
 
 	return &GRPCServer{
-		server: grpcServer,
-		pubsub: ps,
-		lis:    lis,
+		Server: grpcServer,
+		SubPub: ps,
+		Lis:    lis,
 	}, nil
 }
 
@@ -43,18 +43,18 @@ func (s *GRPCServer) Start() error {
 		signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 		<-sigChan
 
-		log.Println("Завершаем работу gRPC сервера...")
-		s.server.GracefulStop()
+		log.Println("Shutting down gRPC server...")
+		s.Server.GracefulStop()
 
-		if err := s.pubsub.Close(context.Background()); err != nil {
-			log.Printf("Ошибка при закрытии pubsub: %v", err)
+		if err := s.SubPub.Close(context.Background()); err != nil {
+			log.Printf("Error closing pubsub: %v", err)
 		}
 	}()
 
-	log.Printf("Запускаем gRPC сервер на %s", s.lis.Addr().String())
-	return s.server.Serve(s.lis)
+	log.Printf("Starting gRPC server on %s", s.Lis.Addr().String())
+	return s.Server.Serve(s.Lis)
 }
 
 func (s *GRPCServer) Stop() {
-	s.server.GracefulStop()
+	s.Server.GracefulStop()
 }
