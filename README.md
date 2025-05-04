@@ -50,7 +50,7 @@ docker-compose down
 
 1. Установка зависимостей:
 ```bash
-go mod download
+go mod tidy
 ```
 
 2. Генерация gRPC кода (если нужно изменить API):
